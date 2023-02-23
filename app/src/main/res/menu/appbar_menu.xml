@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/Github"
+        android:icon="@drawable/github"
+        android:title="memory"
+        app:showAsAction="ifRoom" />
+
+    <item
+        android:id="@+id/Platinmods"
+        android:icon="@drawable/platinmods"
+        android:title="Console"
+        app:showAsAction="ifRoom" />
+</menu>
