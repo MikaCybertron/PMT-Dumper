@@ -1,3 +1,5 @@
+<p align="left"> <img src="https://komarev.com/ghpvc/?username=PMT-Dumper&label=Total%20views&color=0e75b6&style=flat" alt="PMT-Dumper" /> </p>
+
 # PMT-Dumper
 This is an Android application that can Dump Files from Android Process Memory based on [**NoxDumper**](https://github.com/zeroKilo/NoxDumper) and [**PADumper**](https://github.com/BryanGIG/PADumper) for Rooted Devices.
 
