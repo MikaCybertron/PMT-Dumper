@@ -17,7 +17,7 @@ for devices with android 12 or higher it may work and some may not work due to p
 - [**Optional**] Check `Dump Maps file` if you want dump the maps of process memory.
 - Dump and wait until finish.
 
-# Output Directory according to the android version the device is using:
+Output Directory according to the android version the device is using:
 - Android 11 and higher: `/data/local/tmp/[startAddress-endAddress-file]`
 
 - Android 10 and below: `/sdcard/PlatinmodsDumper/[ProcessName]/[startAddress-endAddress-file]`
