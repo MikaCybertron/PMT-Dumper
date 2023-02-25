@@ -25,9 +25,9 @@ Output Directory according to the android version the device is using:
 # Screenshots
 ![Screenshot 1](https://i.imgur.com/zKW8apA.png)
 
-![Screenshot 2](https://i.imgur.com/BLYDI6j.png)
+![Screenshot 2](https://i.imgur.com/h9P9GnQ.png)
 
-![Screenshot 3](https://i.imgur.com/h9P9GnQ.png)
+![Screenshot 3](https://i.imgur.com/BLYDI6j.png)
 
 
 ## Credits
