@@ -1,25 +1,20 @@
 package platinmods.com.dumper.ui;
 
+import android.Manifest;
+import android.annotation.SuppressLint;
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.net.Uri;
+import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuItem;
+
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
-
-
-import android.Manifest;
-import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.net.Uri;
-import android.os.Bundle;
-import android.os.Debug;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
-import android.view.View;
-import android.widget.Button;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationBarView;
@@ -27,7 +22,6 @@ import com.topjohnwu.superuser.Shell;
 
 import platinmods.com.dumper.BuildConfig;
 import platinmods.com.dumper.R;
-import platinmods.com.dumper.dumper.Dumper;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -55,6 +49,7 @@ public class MainActivity extends AppCompatActivity {
 
         bottomNavigationView = findViewById(R.id.nav_view);
         bottomNavigationView.setOnItemSelectedListener(new NavigationBarView.OnItemSelectedListener() {
+
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
                 switch (item.getItemId()) {
@@ -106,7 +101,7 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/MikaCybertron/PMT-Dumper")));
                 break;
             case R.id.Platinmods:
-                startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://platinmods.com")));
+                startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://platinmods.com/threads/dump-libil2cpp-so-and-global-metadata-dat-with-pmt-dumper.178986/")));
                 break;
         }
         return true;
@@ -115,16 +110,6 @@ public class MainActivity extends AppCompatActivity {
     private void requestPermission() {
         String[] PERMISSIONS =  { android.Manifest.permission.WRITE_EXTERNAL_STORAGE};
         ActivityCompat.requestPermissions(this, PERMISSIONS, 101);
-    }
-
-    private boolean StoragePermission() {
-        int result= ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE);
-        if(result== PackageManager.PERMISSION_GRANTED){
-            return true;
-        }
-        else{
-            return false;
-        }
     }
 
 }

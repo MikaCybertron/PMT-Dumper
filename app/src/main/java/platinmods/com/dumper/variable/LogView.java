@@ -1,12 +1,10 @@
 package platinmods.com.dumper.variable;
 
-import android.text.Html;
-
 import androidx.annotation.NonNull;
 
 public class LogView {
 
-    private StringBuilder log;
+    private final StringBuilder log;
 
     public LogView() {
         this.log = new StringBuilder();
@@ -24,22 +22,15 @@ public class LogView {
         append(text + "\n");
     }
 
-    public void appendSuccess(String text) {
-        appendLine("[SUCCESS] " + text);
-    }
-
     public void appendInfo(String text) {
         appendLine("[INFO] " + text);
-    }
-
-    public void appendWarning(String text) {
-        appendLine("[WARNING] " + text);
     }
 
     public void appendError(String text) {
         appendLine("[ERROR] " + text);
     }
 
+    @NonNull
     @Override
     public String toString() {
         return log.toString();

@@ -1,5 +1,7 @@
 package platinmods.com.dumper.variable;
 
+import androidx.annotation.NonNull;
+
 public class MapInfo {
     private int PID;
     private String address = "";
@@ -78,6 +80,7 @@ public class MapInfo {
         return getStartAddress() != 0L && getEndAddress() != 0L;
     }
 
+    @NonNull
     @Override
     public String toString() {
         return "MapInfo(address='" + address + "', perms='" + perms + "', offset='" + offset + "', dev='" + dev + "', inode='" + inode + "', path='" + path + "')";

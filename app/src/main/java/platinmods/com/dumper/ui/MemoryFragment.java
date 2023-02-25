@@ -5,6 +5,7 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
 
 import androidx.core.content.ContextCompat;
@@ -63,15 +64,15 @@ public class MemoryFragment extends Fragment {
 
     private void loadFirstMessage() {
 
-        String rootPermission = Shell.isAppGrantedRoot() == true ? "Enabled" : "Disabled";
+        String rootPermission = Boolean.TRUE.equals(Shell.isAppGrantedRoot()) ? "Enabled" : "Disabled";
 
-        String StoragePermission = StoragePermission() == true ? "Enabled" : "Disabled";
+        String StoragePermission = StoragePermission() ? "Enabled" : "Disabled";
 
         permissionMessage = new StringBuilder();
 
-        permissionMessage.append("Root Permission: " + rootPermission + "\n\n");
+        permissionMessage.append("Root Permission: ").append(rootPermission).append("\n\n");
 
-        permissionMessage.append("Storage Permission: " + StoragePermission + "\n\n");
+        permissionMessage.append("Storage Permission: ").append(StoragePermission).append("\n\n");
     }
 
     private void setupLayout(View view) {
@@ -94,7 +95,8 @@ public class MemoryFragment extends Fragment {
             @Override
             public void onClick(View v) {
 
-                if(AllPermissionGranted()) {
+                if(AllPermissionGranted())
+                {
                     showListProcess();
                 }
             }
@@ -104,15 +106,16 @@ public class MemoryFragment extends Fragment {
             @Override
             public void onClick(View v) {
 
-                if(AllPermissionGranted()) {
-
+                if(AllPermissionGranted())
+                {
                     String processName = process_edit_text.getText().toString();
 
-                    if(!processName.isEmpty()) {
-
+                    if(!processName.isEmpty())
+                    {
                         String fileName = fileName_edit_text.getText().toString();
 
-                        if(fileName.isEmpty()) {
+                        if(fileName.isEmpty())
+                        {
                             fileName = "libil2cpp.so";
                         }
 
@@ -122,13 +125,15 @@ public class MemoryFragment extends Fragment {
 
                         dumper.dumpFile(fileName, elfFixer.isChecked(), architectures64Bit.isChecked(), dumpMaps.isChecked());
 
-                        if(dumpMetadata.isChecked()) {
+                        if(dumpMetadata.isChecked())
+                        {
                             dumper.dumpFile("global-metadata.dat", false, false, false);
                         }
 
                         sendMessage(permissionMessage + logView.toString());
                     }
-                    else {
+                    else
+                    {
                         Toast.makeText(getContext(), "Please select apps first!", Toast.LENGTH_LONG).show();
                     }
                 }
@@ -141,7 +146,8 @@ public class MemoryFragment extends Fragment {
         if(StoragePermission()) {
             result = true;
         }
-        else {
+        else
+        {
             Toast.makeText(getContext(), "Please Grant Storage Permission first!", Toast.LENGTH_SHORT).show();
             result = false;
         }
@@ -149,7 +155,8 @@ public class MemoryFragment extends Fragment {
         if(Shell.isAppGrantedRoot()) {
             result = true;
         }
-        else {
+        else
+        {
             Toast.makeText(getContext(), "Please Grant Root Permission first!", Toast.LENGTH_SHORT).show();
             result = false;
         }
@@ -166,22 +173,35 @@ public class MemoryFragment extends Fragment {
 
     private void showListProcess() {
 
-        List<String> listApps = getInstalledApps();
+        List<String> listApps = null;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R)
+        {
+            // Device is running Android 11 or higher
+            listApps = new ArrayList<>();
+        }
+        else
+        {
+            listApps = getInstalledApps();
+        }
 
         ArrayList<ProcessInfo> list = getAllProcess(listApps);
 
         ArrayList<String> appNames = new ArrayList<>();
+
         for (ProcessInfo processInfo : list) {
 
             String processName = processInfo.PackageName;
 
-            if(processInfo.AppName.contains("App Name not found")) {
+            if(processInfo.AppName.contains("App Name not found"))
+            {
                 appNames.add(processInfo.PID + " - " + processInfo.PackageName);
             }
             else {
-                if (processName.contains(":")) {
+                if (processName.contains(":"))
+                {
                     appNames.add(processInfo.PID + " - " + processInfo.AppName + " (" + processName.substring(processName.indexOf(":") + 1) + ")");
-                } else {
+                } else
+                {
                     appNames.add(processInfo.PID + " - " + processInfo.AppName + " (" + processInfo.PackageName + ")");
                 }
             }
@@ -204,38 +224,46 @@ public class MemoryFragment extends Fragment {
     private ArrayList<ProcessInfo> getAllProcess(List<String> listApps) {
 
         HashMap<Integer, ProcessInfo> MakeListProcess = CreateListProcess(listApps);
-        ArrayList<ProcessInfo> processList = new ArrayList<>();
-        processList.clear();
 
+        ArrayList<ProcessInfo> processList = new ArrayList<>();
 
         for (Integer key : MakeListProcess.keySet() ) {
 
             processList.add(MakeListProcess.get(key));
         }
-
         return processList;
     }
 
     private HashMap<Integer, ProcessInfo> CreateListProcess(List<String> listApps) {
 
-        HashMap<Integer, ProcessInfo> MakeListProcess = new HashMap<Integer, ProcessInfo>();
-
-
-        List<String> output;
+        HashMap<Integer, ProcessInfo> MakeListProcess = new HashMap<>();
 
         Shell.Result cmd = Shell.cmd("ps -t").exec();
+
         if(cmd.isSuccess())
         {
-            output = cmd.getOut();
+            List<String> output = cmd.getOut();
             for (int i = 0; i < output.size(); i++) {
                 String[] results = output.get(i).trim().replaceAll("( )+", ",").replaceAll("(\n)+", ",").split(",");
                 for (int j = 0; j < results.length; j++) {
 
                     String processName = results[results.length - 1];
-                    if(processName.contains(".") && findInstalledApps(listApps, processName))
+                    if(processName.contains("."))
                     {
                         int pid = Integer.parseInt(results[1]);
-                        MakeListProcess.put(pid, new ProcessInfo(getContext(), processName, pid));
+
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R)
+                        {
+                            // Device is running Android 11 or higher
+                            MakeListProcess.put(pid, new ProcessInfo(getContext(), processName, pid));
+                        }
+                        else
+                        {
+                            if(findInstalledApps(listApps, processName))
+                            {
+                                MakeListProcess.put(pid, new ProcessInfo(getContext(), processName, pid));
+                            }
+                        }
                     }
                 }
             }
@@ -244,19 +272,30 @@ public class MemoryFragment extends Fragment {
         cmd = Shell.cmd("ps").exec();
         if(cmd.isSuccess())
         {
-            output = cmd.getOut();
+            List<String> output = cmd.getOut();
             for (int i = 0; i < output.size(); i++) {
                 String[] results = output.get(i).trim().replaceAll("( )+", ",").replaceAll("(\n)+", ",").split(",");
                 for (int j = 0; j < results.length; j++) {
 
                     String processName = results[results.length - 1];
-                    if(processName.contains(".") && findInstalledApps(listApps, processName))
+                    if(processName.contains("."))
                     {
                         int pid = Integer.parseInt(results[1]);
-                        MakeListProcess.put(pid, new ProcessInfo(getContext(), processName, pid));
+
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R)
+                        {
+                            // Device is running Android 11 or higher
+                            MakeListProcess.put(pid, new ProcessInfo(getContext(), processName, pid));
+                        }
+                        else
+                        {
+                            if(findInstalledApps(listApps, processName))
+                            {
+                                MakeListProcess.put(pid, new ProcessInfo(getContext(), processName, pid));
+                            }
+                        }
                     }
                 }
-
             }
         }
 
@@ -276,7 +315,7 @@ public class MemoryFragment extends Fragment {
 
     private List<String> getInstalledApps() {
         List<ApplicationInfo> packages = getContext().getPackageManager().getInstalledApplications(PackageManager.GET_META_DATA);
-        List<String> ret = new ArrayList<String>();
+        List<String> ret = new ArrayList<>();
 
         for (ApplicationInfo s : packages) {
             //Filter system apps and this app
@@ -288,12 +327,22 @@ public class MemoryFragment extends Fragment {
     }
 
     private boolean StoragePermission() {
+
         int result= ContextCompat.checkSelfPermission(getContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE);
-        if(result== PackageManager.PERMISSION_GRANTED){
+
+        if(result == PackageManager.PERMISSION_GRANTED) {
+
             return true;
         }
-        else{
-            return false;
+        else {
+
+            result= ContextCompat.checkSelfPermission(getContext(), Manifest.permission.MANAGE_EXTERNAL_STORAGE);
+
+            if(result == PackageManager.PERMISSION_GRANTED) {
+
+                return true;
+            }
         }
+        return false;
     }
 }

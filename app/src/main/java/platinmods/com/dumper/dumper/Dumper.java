@@ -1,6 +1,7 @@
 package platinmods.com.dumper.dumper;
 
 import android.content.Context;
+import android.os.Build;
 import android.os.Environment;
 import android.text.format.Formatter;
 import android.util.Log;
@@ -10,6 +11,7 @@ import com.topjohnwu.superuser.Shell;
 import com.topjohnwu.superuser.io.SuFile;
 import com.topjohnwu.superuser.io.SuFileOutputStream;
 
+import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -24,11 +26,11 @@ import platinmods.com.dumper.variable.MapInfo;
 
 public class Dumper {
 
-    private Context context;
+    private final Context context;
+
+    private final String packageName;
 
     private String DEFAULT_DIR;
-
-    private String packageName;
 
     private String fileName;
 
@@ -36,7 +38,7 @@ public class Dumper {
 
     private int PID;
 
-    private LogView logView;
+    private final LogView logView;
 
     public Dumper(Context context, String packageName, LogView logView) {
         this.packageName = packageName;
@@ -46,13 +48,11 @@ public class Dumper {
 
     public void dumpFile(String fileName, boolean isFixELF, boolean is64Bit, boolean isDumpMaps) {
 
-        this.listMapsData = new HashMap<String, String>();
+        this.listMapsData = new HashMap<>();
 
         this.fileName = fileName;
 
         DEFAULT_DIR = Environment.getExternalStorageDirectory().getPath() + "/PlatinmodsDumper/" + packageName;
-
-        File outputDir = new File(DEFAULT_DIR);
 
         List<Integer> listPID = getPID();
 
@@ -70,6 +70,19 @@ public class Dumper {
 
         List<Long> listAddress = parseMaps(listMaps);
 
+        // Create Ouput Directory
+        File outputDir = new File(DEFAULT_DIR);
+        outputDir.mkdirs();
+
+        // Dump Maps file
+        if(isDumpMaps) {
+
+            for(String fileMaps : listMapsData.keySet()) {
+
+                dumpMapsFile(listMapsData.get(fileMaps), fileMaps);
+            }
+        }
+
         if(listAddress.size() == 0) {
 
             String message = "Failed to dump file, because file not found in memory.";
@@ -80,22 +93,19 @@ public class Dumper {
             return;
         }
 
-
-        if(!outputDir.exists()) {
-
-            outputDir.mkdirs();
-        }
-
-
+        // Get Address Dump Files
         long startAddress = listAddress.get(0);
         long endAddress = listAddress.get(listAddress.size() - 1);
         long sizeMemory = endAddress - startAddress;
 
-
-
         if (startAddress > 1L && endAddress > 1L) {
 
-            File outputFile = new File(outputDir.getAbsolutePath() + "/" + Long.toHexString(startAddress) + "-" + Long.toHexString(endAddress) + "-" + fileName);
+            String outputFile = outputDir.getAbsolutePath() + "/" + Long.toHexString(startAddress) + "-" + Long.toHexString(endAddress) + "-" + fileName;
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                // Device is running Android 11 or higher
+                outputFile = "/data/local/tmp/" + Long.toHexString(startAddress) + "-" + Long.toHexString(endAddress) + "-" + fileName;
+            }
 
             Shell.Result cmd = Shell.cmd("dd if=/proc/" + PID + "/mem of=" + outputFile + " bs=1024 count=" + (sizeMemory / 1024) + " skip=" + (startAddress / 1024)).exec();
 
@@ -103,22 +113,13 @@ public class Dumper {
 
                 logView.appendInfo("File Name: " + fileName);
                 logView.appendInfo("File Size: " + Formatter.formatFileSize(context, sizeMemory));
-                logView.appendInfo("Start Address: " + startAddress);
-                logView.appendInfo("End Address: " + endAddress);
-
-                logView.appendInfo("Dumped File: " + outputFile.getAbsolutePath());
+                logView.appendInfo("Start Address: " + Long.toHexString(startAddress));
+                logView.appendInfo("End Address: " + Long.toHexString(endAddress));
+                logView.appendInfo("Dumped File: " + outputFile);
 
                 if(isFixELF && fileName.endsWith(".so")) {
 
                     SoFixer(outputFile, is64Bit, startAddress);
-                }
-
-                if(isDumpMaps) {
-
-                    for(String fileMaps : listMapsData.keySet()) {
-
-                        dumpMapsFile(listMapsData.get(fileMaps), fileMaps);
-                    }
                 }
 
                 Toast.makeText(context, "File " + fileName + " successfully dumped!", Toast.LENGTH_LONG).show();
@@ -135,49 +136,75 @@ public class Dumper {
     private void dumpMapsFile(String data, String filename) {
         try
         {
-            File file = new File(DEFAULT_DIR + "/" + filename);
-            FileOutputStream fos = new FileOutputStream(file);
-            fos.write(data.getBytes());
-            fos.close();
 
-            if(file.exists()) {
-                logView.appendInfo("Dumped Maps File: " + file.getAbsolutePath());
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R)
+            {
+                // Device is running Android 11 or higher
+                SuFile file = new SuFile("/data/local/tmp/" + filename);
+
+                // File output streams
+                OutputStream fileOutputStream = SuFileOutputStream.open(file);
+
+                // Create output streams
+                BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(fileOutputStream);
+                bufferedOutputStream.write(data.getBytes());
+                bufferedOutputStream.close();
+
+                if(file.exists()) {
+                    logView.appendInfo("Dumped Maps File: " + file.getAbsolutePath());
+                }
+            }
+            else
+            {
+                File file = new File(DEFAULT_DIR + "/" + filename);
+                FileOutputStream fos = new FileOutputStream(file);
+                fos.write(data.getBytes());
+                fos.close();
+
+                if(file.exists()) {
+                    logView.appendInfo("Dumped Maps File: " + file.getAbsolutePath());
+                }
             }
         }
         catch (IOException e) {
-            Log.e("Exception", "Write file failed: " + e.toString());
+            Log.e("Exception", "Write file failed: " + e.getMessage());
             e.printStackTrace();
         }
     }
 
-    private void SoFixer(File pathDumpFile, boolean is64Bit, long startAddress) {
+    private void SoFixer(String pathDumpFile, boolean is64Bit, long startAddress) {
 
-        if(extractSoFixer()) {
-
+        if(extractSoFixer())
+        {
             String fixerPath = context.getApplicationInfo().nativeLibraryDir + "/SoFixer32";
-            if(is64Bit) {
+
+            if(is64Bit)
+            {
                 fixerPath = context.getApplicationInfo().nativeLibraryDir + "/SoFixer64";
             }
             SuFile soFixerPath = new SuFile(fixerPath);
 
-            File pathDumpFixed = new File(pathDumpFile.getAbsolutePath().replace(".so", "-fixer.so"));
+            String pathDumpFixed = pathDumpFile.replace(".so", "-fixer.so");
 
-            StringBuilder commandBuilder = new StringBuilder();
+            String commandBuilder = soFixerPath.getAbsolutePath() + " -s " + pathDumpFile + " -o " + pathDumpFixed + " -m " + " 0x" + Long.toHexString(startAddress);
 
-            commandBuilder.append(soFixerPath.getAbsolutePath());
-            commandBuilder.append(" -s ");
-            commandBuilder.append(pathDumpFile);
-            commandBuilder.append(" -o ");
-            commandBuilder.append(pathDumpFixed.getAbsolutePath());
-            commandBuilder.append(" -m ");
-            commandBuilder.append(" 0x" + Long.toHexString(startAddress));
+            Shell.Result cmd = Shell.cmd(commandBuilder).exec();
 
+            if(cmd.isSuccess()) {
 
-            Shell.Result cmd = Shell.cmd(commandBuilder.toString()).exec();
-
-            if(cmd.isSuccess() && pathDumpFixed.exists()) {
-
-                logView.appendInfo("Fixed Dumped File: " + pathDumpFixed.getAbsolutePath());
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                    SuFile dumpFile = new SuFile(pathDumpFile);
+                    if(dumpFile.exists()) {
+                        logView.appendInfo("Fixed Dumped File: " + dumpFile.getAbsolutePath());
+                    }
+                }
+                else {
+                    File dumpFile = new File(pathDumpFile);
+                    if(dumpFile.exists()) {
+                        logView.appendInfo("Fixed Dumped File: " + dumpFile.getAbsolutePath());
+                    }
+                }
             }
             else
             {
@@ -264,7 +291,7 @@ public class Dumper {
 
         for(int pid : listPid) {
 
-            String mapsString = "";
+            StringBuilder mapsString = new StringBuilder();
 
             Shell.Result cmd = Shell.cmd("cat /proc/" + pid + "/maps").exec();
             if(cmd.isSuccess()) {
@@ -275,13 +302,13 @@ public class Dumper {
 
                     String lines = output.get(i);
 
-                    mapsString += lines.replaceAll("\\s+", " ") + "\n";
+                    mapsString.append(lines.replaceAll("\\s+", " ")).append("\n");
 
                     listMaps.add(new MapInfo(pid, lines));
                 }
             }
 
-            listMapsData.put("Maps-" + pid + ".txt", mapsString);
+            listMapsData.put("Maps-" + pid + ".txt", mapsString.toString());
 
         }
 
@@ -292,9 +319,7 @@ public class Dumper {
 
         //List<String> output = new ArrayList<>();
 
-        List<Integer> listPID = new ArrayList<>();
-
-        HashMap<Integer, Integer> CreateListProcess = new HashMap<Integer, Integer>();
+        HashMap<Integer, Integer> CreateListProcess = new HashMap<>();
 
         Shell.Result cmd = Shell.cmd("ps -t").exec();
         if(cmd.isSuccess())
@@ -342,11 +367,7 @@ public class Dumper {
             }
         }
 
-        for (Integer pid : CreateListProcess.keySet()) {
-            listPID.add(pid);
-        }
-
-        return listPID;
+        return new ArrayList<>(CreateListProcess.keySet());
     }
 
     private void getOutputShell(List<String> outputData) {
