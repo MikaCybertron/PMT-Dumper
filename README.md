@@ -20,6 +20,9 @@ for devices with android 12 or higher it may work and some may not work due to p
 
 Custom Output Directory: `/CustomPath/PlatinmodsDumper/[ProcessName]/[startAddress-endAddress-file]`
 
+# Video Preview
+[![Learn Frida on Youtube](https://i.imgur.com/A6mWWJW.png)](https://youtu.be/YoW3zylOdZw)
+
 # Screenshots
 ![Screenshot 1](https://i.imgur.com/pqiOue2.png)
 
