@@ -10,8 +10,8 @@ android {
         applicationId "platinmods.com.dumper"
         minSdk 21
         targetSdk 33
-        versionCode 11
-        versionName "1.1"
+        versionCode 20
+        versionName "2.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         ndk {

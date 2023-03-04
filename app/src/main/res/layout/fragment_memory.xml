@@ -5,99 +5,118 @@
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <androidx.core.widget.NestedScrollView
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:layout_marginHorizontal="5dp">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/process_edit_text"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Process Name"
+                android:textStyle="bold"/>
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <Button
+            android:id="@+id/button_selectProcess"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
+            android:layout_marginHorizontal="5dp"
+            android:text="Select Process"
+            android:textSize="16sp"
+            android:textStyle="bold"/>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
+            android:layout_marginHorizontal="5dp">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/fileName_edit_text"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="File Name"
+                android:text="libil2cpp.so"
+                android:textStyle="bold"/>
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
+            android:layout_marginHorizontal="5dp">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/dump_path_edit_text"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Output Directory for Dump File"
+                android:text="/data/local/tmp"
+                android:textStyle="bold"/>
+
+        </com.google.android.material.textfield.TextInputLayout>
+
 
         <LinearLayout
+            android:id="@+id/linear_layout"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="vertical">
-
-            <com.google.android.material.textfield.TextInputLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
-                android:layout_marginHorizontal="5dp">
-
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/process_edit_text"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:hint="Process Name"
-                    android:textStyle="bold"/>
-
-            </com.google.android.material.textfield.TextInputLayout>
+            android:layout_height="wrap_content"
+            android:layout_margin="5dp"
+            android:layout_alignParentBottom="true"
+            android:orientation="horizontal">
 
             <Button
-                android:id="@+id/button_selectApp"
-                android:layout_width="wrap_content"
+                android:id="@+id/button_option"
+                android:layout_width="0dp"
+                android:layout_weight="1"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="5dp"
+                android:layout_gravity="center"
+                android:layout_marginVertical="10dp"
                 android:layout_marginHorizontal="5dp"
-                android:text="SELECT APPS"
-                android:textSize="16sp"
-                android:textStyle="bold"/>
-
-            <com.google.android.material.textfield.TextInputLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
-                android:layout_marginHorizontal="5dp">
-
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/fileName_edit_text"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:hint="File Name"
-                    android:text="libil2cpp.so"
-                    android:textStyle="bold"/>
-
-            </com.google.android.material.textfield.TextInputLayout>
-
-            <CheckBox
-                android:id="@+id/elfFixer"
-                android:layout_width="match_parent"
-                android:layout_height="50dp"
-                android:layout_marginTop="6dp"
-                android:minHeight="48dp"
-                android:text="ELF Fixer"
-                android:textStyle="bold"/>
-
-            <Switch
-                android:id="@+id/architectures64Bit"
-                android:layout_width="wrap_content"
-                android:layout_height="50dp"
-                android:layout_marginStart="50dp"
-                android:text="ELF Arch (32 Bit or 64 Bit)"
-                android:textStyle="bold" />
-
-            <CheckBox
-                android:id="@+id/dumpMetadata"
-                android:layout_width="match_parent"
-                android:layout_height="50dp"
-                android:text="Dump global-metadata.dat"
-                android:textStyle="bold" />
-
-            <CheckBox
-                android:id="@+id/dumpMaps"
-                android:layout_width="match_parent"
-                android:layout_height="50dp"
-                android:text="Dump Maps file"
+                android:gravity="center"
+                android:text="Dump Option"
+                android:textColor="@color/white"
+                android:textSize="20sp"
                 android:textStyle="bold" />
 
             <Button
                 android:id="@+id/button_dump"
-                android:layout_width="match_parent"
+                android:layout_width="0dp"
+                android:layout_weight="1"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="5dp"
+                android:layout_gravity="center"
+                android:layout_marginVertical="10dp"
                 android:layout_marginHorizontal="5dp"
-                android:text="DUMP FILE"
-                android:textSize="16sp"
-                android:textStyle="bold"/>
+                android:gravity="center"
+                android:text="Dump File"
+                android:textColor="@color/white"
+                android:textSize="20sp"
+                android:textStyle="bold" />
 
         </LinearLayout>
 
-    </androidx.core.widget.NestedScrollView>
+        <TextView
+            android:id="@+id/textStatus"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="8dp"
+            android:text="Status: Dump not started yet"
+            android:textColor="#FF0000"
+            android:textSize="16sp"
+            android:textStyle="bold"/>
+
+    </LinearLayout>
 
 </FrameLayout>
