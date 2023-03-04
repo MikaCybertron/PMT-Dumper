@@ -23,11 +23,13 @@ Output Directory according to the android version the device is using:
 - Android 10 and below: `/sdcard/PlatinmodsDumper/[ProcessName]/[startAddress-endAddress-file]`
 
 # Screenshots
-![Screenshot 1](https://i.imgur.com/zKW8apA.png)
+![Screenshot 1](https://i.imgur.com/pqiOue2.png)
 
-![Screenshot 2](https://i.imgur.com/h9P9GnQ.png)
+![Screenshot 2](https://i.imgur.com/gsz2CiW.png)
 
-![Screenshot 3](https://i.imgur.com/BLYDI6j.png)
+![Screenshot 3](https://i.imgur.com/DQOmlS3.png)
+
+![Screenshot 4](https://i.imgur.com/BLYDI6j.png)
 
 
 ## Credits
